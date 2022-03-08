@@ -101,7 +101,7 @@ func unTarGz(archive, dest, filename string) error {
 			continue
 		}
 
-		file, err := create(filename)
+		file, err := Create(filename)
 		if err != nil {
 			return err
 		}

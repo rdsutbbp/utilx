@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func create(name string) (*os.File, error) {
+func Create(name string) (*os.File, error) {
 	dir, _ := filepath.Split(name)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
