@@ -1,22 +1,30 @@
 package httpx
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 )
 
 func DoPost(ctx context.Context, body interface{}, url string, headers map[string][]string, retryTimes int, retryDelay time.Duration) ([]byte, error) {
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		return nil, errors.Wrap(err, "marshal interface")
+	var bodyArgs io.Reader
+	switch t := body.(type) {
+	case []byte:
+		bodyArgs = bytes.NewReader(t)
+	default:
+		data, err := json.Marshal(body)
+		if err != nil {
+			return nil, errors.Wrapf(err, "marshal body [%v]", body)
+		}
+		bodyArgs = bytes.NewReader(data)
 	}
-	request, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(string(jsonBody)))
+	request, err := http.NewRequestWithContext(ctx, "POST", url, bodyArgs)
 	if err != nil {
 		return nil, errors.Wrap(err, "new request with context")
 	}
