@@ -23,7 +23,7 @@ type SSHSess struct {
 }
 
 // Login a new ssh session
-func Login(username, password, hostname, port string, secure bool) (*SSHSess, error) {
+func Login(username, password, addr string, secure bool) (*SSHSess, error) {
 	config := &ssh.ClientConfig{}
 	if secure {
 		// SSH client config
@@ -49,9 +49,9 @@ func Login(username, password, hostname, port string, secure bool) (*SSHSess, er
 	}
 
 	// Connect to host
-	client, err := ssh.Dial("tcp", hostname+":"+port, config)
+	client, err := ssh.Dial("tcp", addr, config)
 	if err != nil {
-		return nil, errors.Wrapf(err, "dail to host:port [%s:%s]", hostname, port)
+		return nil, errors.Wrapf(err, "dail to addr [%s]", addr)
 	}
 
 	sess, err := client.NewSession()
@@ -113,7 +113,7 @@ func readConnection(stdBuf io.Reader) []byte {
 }
 
 // ConnectAndCommand connect to host and send command
-func ConnectAndCommand(username, password, hostname, port, command string, secure bool, timeout int, envs ...map[string]string) (string, error) {
+func ConnectAndCommand(username, password, addr, command string, secure bool, timeout int, envs ...map[string]string) (string, error) {
 	config := &ssh.ClientConfig{}
 
 	if secure {
@@ -140,9 +140,9 @@ func ConnectAndCommand(username, password, hostname, port, command string, secur
 	}
 
 	// Connect to host
-	client, err := ssh.Dial("tcp", hostname+":"+port, config)
+	client, err := ssh.Dial("tcp", addr, config)
 	if err != nil {
-		return "", errors.Wrapf(err, "dail to host:port [%s:%s]", hostname, port)
+		return "", errors.Wrapf(err, "dail to addr [%s]", addr)
 	}
 
 	defer client.Close()
