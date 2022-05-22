@@ -44,6 +44,27 @@ func DoPost(ctx context.Context, body interface{}, url string, headers map[strin
 	return resp, err
 }
 
+func DoGet(ctx context.Context, url string, headers map[string][]string, retryTimes int, retryDelay time.Duration) ([]byte, error) {
+	request, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "new request with context")
+	}
+	request.Header = headers
+	client := http.DefaultClient
+	var resp []byte
+	// if meet error, retry times that you set
+	for k := 0; k < retryTimes; k++ {
+		resp, err = doRequest(client, request)
+		if err != nil {
+			// sleep retry delay
+			time.Sleep(retryDelay)
+			continue
+		}
+		break
+	}
+	return resp, err
+}
+
 func doRequest(client *http.Client, request *http.Request) ([]byte, error) {
 	res, err := client.Do(request)
 	if err != nil {
